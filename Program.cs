@@ -307,6 +307,62 @@ public class WareHouseManager
 
 
 
+// ========== QUESTION 4 ==========
+
+public class Student
+{
+    public int Id;
+    public string FullName;
+    public int Score;
+
+    public string GetGrade() => Score switch
+    {
+        >= 80 => "A",
+        >= 70 => "B",
+        >= 60 => "C",
+        >= 50 => "D",
+        _ => "F"
+    };
+}
+
+public class InvalidScoreFormatException : Exception
+{
+    public InvalidScoreFormatException(string message) : base(message) { }
+}
+
+public class MissingFieldException : Exception
+{
+    public MissingFieldException(string message) : base(message) { }
+}
+
+public class StudentResultProcessor
+{
+    public List<Student> ReadStudentsFromFile(string path)
+    {
+        var students = new List<Student>();
+        foreach (var line in File.ReadAllLines(path))
+        {
+            var parts = line.Split(',');
+            if (parts.Length < 3)
+                throw new MissingFieldException("Missing data in line: " + line);
+
+            if (!int.TryParse(parts[0], out int id) || !int.TryParse(parts[2], out int score))
+                throw new InvalidScoreFormatException("Invalid ID or score format: " + line);
+
+            students.Add(new Student { Id = id, FullName = parts[1], Score = score });
+        }
+        return students;
+    }
+
+    public void WriteReportToFile(List<Student> students, string path)
+    {
+        using StreamWriter sw = new(path);
+        foreach (var s in students)
+            sw.WriteLine($"{s.FullName} (ID: {s.Id}): Score = {s.Score}, Grade = {s.GetGrade()}");
+    }
+}
+
+
 
 public class Program
 {
@@ -324,14 +380,30 @@ public class Program
     app2.PrintPrescriptionsForPatient(1);
 
     // ========== QUESTION 3 ==========
-        Console.WriteLine("\n=== Question 3: Warehouse Inventory ===");
-        var warehouse = new WareHouseManager();
-        warehouse.SeedData();
-        Console.WriteLine("\nGroceries:");
-        warehouse.PrintAllItems(warehouse._groceries); 
-        Console.WriteLine("\nElectronics:");
-        warehouse.PrintAllItems(warehouse._electronics);
-        warehouse.RemoveItemById(warehouse._groceries, 99); 
-        warehouse.IncreaseStock(warehouse._electronics, 1, -10); 
+    Console.WriteLine("\n=== Question 3: Warehouse Inventory ===");
+    var warehouse = new WareHouseManager();
+    warehouse.SeedData();
+    Console.WriteLine("\nGroceries:");
+    warehouse.PrintAllItems(warehouse._groceries);
+    Console.WriteLine("\nElectronics:");
+    warehouse.PrintAllItems(warehouse._electronics);
+    warehouse.RemoveItemById(warehouse._groceries, 99);
+    warehouse.IncreaseStock(warehouse._electronics, 1, -10);
+
+    // ========== QUESTION 4 ==========
+        Console.WriteLine("\n=== Question 4: Grading System ===");
+        var processor = new StudentResultProcessor();
+        try
+        {
+            var students = processor.ReadStudentsFromFile("input.txt");  // Ensure this file exists
+            processor.WriteReportToFile(students, "report.txt");
+            Console.WriteLine("Student report written to report.txt");
+        }
+        catch (FileNotFoundException) { Console.WriteLine("input.txt not found."); }
+        catch (InvalidScoreFormatException e) { Console.WriteLine(e.Message); }
+        catch (MissingFieldException e) { Console.WriteLine(e.Message); }
+        catch (Exception e) { Console.WriteLine("Unexpected error: " + e.Message); }
+
+      
   }
 }
