@@ -139,61 +139,199 @@ public class Prescription
 
 public class HealthSystemApp
 {
-    private Repository<Patient> _patientRepo = new();
-    private Repository<Prescription> _prescriptionRepo = new();
-    private Dictionary<int, List<Prescription>> _prescriptionMap = new();
+  private Repository<Patient> _patientRepo = new();
+  private Repository<Prescription> _prescriptionRepo = new();
+  private Dictionary<int, List<Prescription>> _prescriptionMap = new();
+
+  public void SeedData()
+  {
+    _patientRepo.Add(new Patient(1, "John Doe", 30, "Male"));
+    _patientRepo.Add(new Patient(2, "Jane Smith", 25, "Female"));
+
+    _prescriptionRepo.Add(new Prescription(1, 1, "Paracetamol", DateTime.Today));
+    _prescriptionRepo.Add(new Prescription(2, 1, "Ibuprofen", DateTime.Today));
+    _prescriptionRepo.Add(new Prescription(3, 2, "Amoxicillin", DateTime.Today));
+  }
+
+  public void BuildPrescriptionMap()
+  {
+    foreach (var p in _prescriptionRepo.GetAll())
+    {
+      if (!_prescriptionMap.ContainsKey(p.PatientId))
+        _prescriptionMap[p.PatientId] = new List<Prescription>();
+      _prescriptionMap[p.PatientId].Add(p);
+    }
+  }
+
+  public void PrintAllPatients()
+  {
+    foreach (var p in _patientRepo.GetAll())
+      Console.WriteLine($"{p.Id}: {p.Name}, {p.Age}, {p.Gender}");
+  }
+
+  public void PrintPrescriptionsForPatient(int id)
+  {
+    if (_prescriptionMap.ContainsKey(id))
+    {
+      foreach (var pres in _prescriptionMap[id])
+        Console.WriteLine($"{pres.MedicationName} issued on {pres.DateIssued}");
+    }
+    else Console.WriteLine("No prescriptions found.");
+  }
+}
+
+// ========== QUESTION 3 ==========
+
+public interface IInventoryItem
+{
+    int Id { get; }
+    string Name { get; }
+    int Quantity { get; set; }
+}
+
+public class ElectronicItem : IInventoryItem
+{
+    public int Id { get; }
+    public string Name { get; }
+    public int Quantity { get; set; }
+    public string Brand { get; }
+    public int WarrantyMonths { get; }
+
+    public ElectronicItem(int id, string name, int quantity, string brand, int warrantyMonths)
+    {
+        Id = id; Name = name; Quantity = quantity; Brand = brand; WarrantyMonths = warrantyMonths;
+    }
+}
+
+public class GroceryItem : IInventoryItem
+{
+    public int Id { get; }
+    public string Name { get; }
+    public int Quantity { get; set; }
+    public DateTime ExpiryDate { get; }
+
+    public GroceryItem(int id, string name, int quantity, DateTime expiryDate)
+    {
+        Id = id; Name = name; Quantity = quantity; ExpiryDate = expiryDate;
+    }
+}
+
+public class DuplicateItemException : Exception
+{
+    public DuplicateItemException(string message) : base(message) { }
+}
+
+public class ItemNotFoundException : Exception
+{
+    public ItemNotFoundException(string message) : base(message) { }
+}
+
+public class InvalidQuantityException : Exception
+{
+    public InvalidQuantityException(string message) : base(message) { }
+}
+
+public class InventoryRepository<T> where T : IInventoryItem
+{
+    private Dictionary<int, T> _items = new();
+
+    public void AddItem(T item)
+    {
+        if (_items.ContainsKey(item.Id))
+            throw new DuplicateItemException("Item with the same ID already exists.");
+        _items[item.Id] = item;
+    }
+
+    public T GetItemById(int id)
+    {
+        if (!_items.ContainsKey(id))
+            throw new ItemNotFoundException("Item not found.");
+        return _items[id];
+    }
+
+    public void RemoveItem(int id)
+    {
+        if (!_items.Remove(id))
+            throw new ItemNotFoundException("Item not found for removal.");
+    }
+
+    public List<T> GetAllItems() => new(_items.Values);
+
+    public void UpdateQuantity(int id, int newQuantity)
+    {
+        if (newQuantity < 0)
+            throw new InvalidQuantityException("Quantity cannot be negative.");
+        GetItemById(id).Quantity = newQuantity;
+    }
+}
+
+public class WareHouseManager
+{
+    public InventoryRepository<ElectronicItem> _electronics = new();
+    public InventoryRepository<GroceryItem> _groceries = new();
 
     public void SeedData()
     {
-        _patientRepo.Add(new Patient(1, "John Doe", 30, "Male"));
-        _patientRepo.Add(new Patient(2, "Jane Smith", 25, "Female"));
+        _electronics.AddItem(new ElectronicItem(1, "Laptop", 10, "Dell", 24));
+        _electronics.AddItem(new ElectronicItem(2, "Phone", 15, "Samsung", 12));
 
-        _prescriptionRepo.Add(new Prescription(1, 1, "Paracetamol", DateTime.Today));
-        _prescriptionRepo.Add(new Prescription(2, 1, "Ibuprofen", DateTime.Today));
-        _prescriptionRepo.Add(new Prescription(3, 2, "Amoxicillin", DateTime.Today));
+        _groceries.AddItem(new GroceryItem(1, "Milk", 20, DateTime.Today.AddDays(7)));
+        _groceries.AddItem(new GroceryItem(2, "Bread", 30, DateTime.Today.AddDays(2)));
     }
 
-    public void BuildPrescriptionMap()
+    public void PrintAllItems<T>(InventoryRepository<T> repo) where T : IInventoryItem
     {
-        foreach (var p in _prescriptionRepo.GetAll())
+        foreach (var item in repo.GetAllItems())
+            Console.WriteLine($"{item.Id} - {item.Name} - Qty: {item.Quantity}");
+    }
+
+    public void IncreaseStock<T>(InventoryRepository<T> repo, int id, int quantity) where T : IInventoryItem
+    {
+        try
         {
-            if (!_prescriptionMap.ContainsKey(p.PatientId))
-                _prescriptionMap[p.PatientId] = new List<Prescription>();
-            _prescriptionMap[p.PatientId].Add(p);
+            var item = repo.GetItemById(id);
+            item.Quantity += quantity;
         }
+        catch (Exception e) { Console.WriteLine(e.Message); }
     }
 
-    public void PrintAllPatients()
+    public void RemoveItemById<T>(InventoryRepository<T> repo, int id) where T : IInventoryItem
     {
-        foreach (var p in _patientRepo.GetAll())
-            Console.WriteLine($"{p.Id}: {p.Name}, {p.Age}, {p.Gender}");
-    }
-
-    public void PrintPrescriptionsForPatient(int id)
-    {
-        if (_prescriptionMap.ContainsKey(id))
+        try
         {
-            foreach (var pres in _prescriptionMap[id])
-                Console.WriteLine($"{pres.MedicationName} issued on {pres.DateIssued}");
+            repo.RemoveItem(id);
         }
-        else Console.WriteLine("No prescriptions found.");
+        catch (Exception e) { Console.WriteLine(e.Message); }
     }
 }
 
 
+
+
 public class Program
 {
-    public static void Main(string[] args)
-    {
-        // Run Question 1
-        new FinanceApp().Run();
+  public static void Main(string[] args)
+  {
+    // Run Question 1
+    new FinanceApp().Run();
 
-        // Run Question 2
-        Console.WriteLine("\n=== Question 2: Healthcare System ===");
-        var app2 = new HealthSystemApp();
-        app2.SeedData();
-        app2.BuildPrescriptionMap();
-        app2.PrintAllPatients();
-        app2.PrintPrescriptionsForPatient(1);
-    }
+    // Run Question 2
+    Console.WriteLine("\n=== Question 2: Healthcare System ===");
+    var app2 = new HealthSystemApp();
+    app2.SeedData();
+    app2.BuildPrescriptionMap();
+    app2.PrintAllPatients();
+    app2.PrintPrescriptionsForPatient(1);
+
+    // ========== QUESTION 3 ==========
+        Console.WriteLine("\n=== Question 3: Warehouse Inventory ===");
+        var warehouse = new WareHouseManager();
+        warehouse.SeedData();
+        Console.WriteLine("\nGroceries:");
+        warehouse.PrintAllItems(warehouse._groceries); 
+        Console.WriteLine("\nElectronics:");
+        warehouse.PrintAllItems(warehouse._electronics);
+        warehouse.RemoveItemById(warehouse._groceries, 99); 
+        warehouse.IncreaseStock(warehouse._electronics, 1, -10); 
+  }
 }
