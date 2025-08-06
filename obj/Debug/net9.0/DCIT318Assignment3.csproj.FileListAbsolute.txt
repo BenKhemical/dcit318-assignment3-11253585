@@ -12,3 +12,4 @@ C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\refint\DCIT318Assignment3.dll
 C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.pdb
 C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.genruntimeconfig.cache
 C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\ref\DCIT318Assignment3.dll
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.sourcelink.json
