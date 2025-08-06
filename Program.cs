@@ -362,6 +362,70 @@ public class StudentResultProcessor
     }
 }
 
+// ========== QUESTION 5 ==========
+
+public interface IInventoryEntity
+{
+    int Id { get; }
+}
+
+public record InventoryItem(int Id, string Name, int Quantity, DateTime DateAdded) : IInventoryEntity;
+
+public class InventoryLogger<T> where T : IInventoryEntity
+{
+    private List<T> _log = new();
+    private string _filePath;
+
+    public InventoryLogger(string filePath)
+    {
+        _filePath = filePath;
+    }
+
+    public void Add(T item) => _log.Add(item);
+    public List<T> GetAll() => _log;
+
+    public void SaveToFile()
+    {
+        try
+        {
+            var lines = _log.Select(item => System.Text.Json.JsonSerializer.Serialize(item));
+            File.WriteAllLines(_filePath, lines);
+        }
+        catch (Exception ex) { Console.WriteLine("Error saving: " + ex.Message); }
+    }
+
+    public void LoadFromFile()
+    {
+        try
+        {
+            _log = File.ReadAllLines(_filePath)
+                .Select(line => System.Text.Json.JsonSerializer.Deserialize<T>(line)!)
+                .ToList();
+        }
+        catch (Exception ex) { Console.WriteLine("Error loading: " + ex.Message); }
+    }
+}
+
+public class InventoryApp
+{
+    private InventoryLogger<InventoryItem> _logger = new("inventory.txt");
+
+    public void SeedSampleData()
+    {
+        _logger.Add(new InventoryItem(1, "Table", 10, DateTime.Today));
+        _logger.Add(new InventoryItem(2, "Chair", 20, DateTime.Today));
+        _logger.Add(new InventoryItem(3, "Fan", 5, DateTime.Today));
+    }
+
+    public void SaveData() => _logger.SaveToFile();
+    public void LoadData() => _logger.LoadFromFile();
+
+    public void PrintAllItems()
+    {
+        foreach (var item in _logger.GetAll())
+            Console.WriteLine($"{item.Id}: {item.Name} - Qty: {item.Quantity} - Date: {item.DateAdded:yyyy-MM-dd}");
+    }
+}
 
 
 public class Program
@@ -391,19 +455,26 @@ public class Program
     warehouse.IncreaseStock(warehouse._electronics, 1, -10);
 
     // ========== QUESTION 4 ==========
-        Console.WriteLine("\n=== Question 4: Grading System ===");
-        var processor = new StudentResultProcessor();
-        try
-        {
-            var students = processor.ReadStudentsFromFile("input.txt");  // Ensure this file exists
-            processor.WriteReportToFile(students, "report.txt");
-            Console.WriteLine("Student report written to report.txt");
-        }
-        catch (FileNotFoundException) { Console.WriteLine("input.txt not found."); }
-        catch (InvalidScoreFormatException e) { Console.WriteLine(e.Message); }
-        catch (MissingFieldException e) { Console.WriteLine(e.Message); }
-        catch (Exception e) { Console.WriteLine("Unexpected error: " + e.Message); }
+    Console.WriteLine("\n=== Question 4: Grading System ===");
+    var processor = new StudentResultProcessor();
+    try
+    {
+      var students = processor.ReadStudentsFromFile("input.txt");  
+      processor.WriteReportToFile(students, "report.txt");
+      Console.WriteLine("Student report written to report.txt");
+    }
+    catch (FileNotFoundException) { Console.WriteLine("input.txt not found."); }
+    catch (InvalidScoreFormatException e) { Console.WriteLine(e.Message); }
+    catch (MissingFieldException e) { Console.WriteLine(e.Message); }
+    catch (Exception e) { Console.WriteLine("Unexpected error: " + e.Message); }
 
+     // ========== QUESTION 5 ==========
+        Console.WriteLine("\n=== Question 5: Inventory Logger ===");
+        var inventoryApp = new InventoryApp();
+        inventoryApp.SeedSampleData();
+        inventoryApp.SaveData();
+        inventoryApp.LoadData();
+        inventoryApp.PrintAllItems();
       
   }
 }

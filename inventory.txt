@@ -1,0 +1,3 @@
+{"Id":1,"Name":"Table","Quantity":10,"DateAdded":"2025-08-06T00:00:00+00:00"}
+{"Id":2,"Name":"Chair","Quantity":20,"DateAdded":"2025-08-06T00:00:00+00:00"}
+{"Id":3,"Name":"Fan","Quantity":5,"DateAdded":"2025-08-06T00:00:00+00:00"}
