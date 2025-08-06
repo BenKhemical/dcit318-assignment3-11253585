@@ -1,0 +1,14 @@
+C:\Users\mensa\DCIT318Assignment3\bin\Debug\net9.0\DCIT318Assignment3.exe
+C:\Users\mensa\DCIT318Assignment3\bin\Debug\net9.0\DCIT318Assignment3.deps.json
+C:\Users\mensa\DCIT318Assignment3\bin\Debug\net9.0\DCIT318Assignment3.runtimeconfig.json
+C:\Users\mensa\DCIT318Assignment3\bin\Debug\net9.0\DCIT318Assignment3.dll
+C:\Users\mensa\DCIT318Assignment3\bin\Debug\net9.0\DCIT318Assignment3.pdb
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.AssemblyInfoInputs.cache
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.AssemblyInfo.cs
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.csproj.CoreCompileInputs.cache
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.dll
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\refint\DCIT318Assignment3.dll
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.pdb
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\DCIT318Assignment3.genruntimeconfig.cache
+C:\Users\mensa\DCIT318Assignment3\obj\Debug\net9.0\ref\DCIT318Assignment3.dll
